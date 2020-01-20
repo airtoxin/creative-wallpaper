@@ -6,8 +6,8 @@ const synth = new Synth().toDestination();
 
 synth.triggerAttackRelease("C4", "16n");
 
-const canvas = document.querySelector('#root') as HTMLCanvasElement;
-const ctx = canvas.getContext('2d');
+const canvas = document.querySelector("#root") as HTMLCanvasElement;
+const ctx = canvas.getContext("2d");
 
 const world = new World(Vec2(0, -10));
 const renderer = new Renderer(world, ctx);
@@ -15,7 +15,7 @@ const renderer = new Renderer(world, ctx);
 const runner = new Runner(world, {
   // default settings
   speed: 1,
-  fps: 60,
+  fps: 60
 });
 
 // init world entities
