@@ -1,26 +1,64 @@
-import { Bodies, Engine, Render, World } from "matter-js";
+import { Bodies, Engine, Events, Render, World } from "matter-js";
+import { range } from "./util";
+import { createSynth } from "./synthCreator";
 
 export const createWorld = () => {
-// create an engine
-  const engine = Engine.create();
+  const {play, generateRandomKey} = createSynth();
+  const engine = Engine.create({});
+  const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 
-// create a renderer
+  const width = document.body.clientWidth;
+  const height = document.body.clientHeight;
+
   const render = Render.create({
-    element: document.body,
-    engine: engine
+    canvas,
+    engine,
+    options: {
+      width,
+      height
+    },
   });
 
-// create two boxes and a ground
-  const boxA = Bodies.rectangle(400, 200, 80, 80);
-  const boxB = Bodies.rectangle(450, 50, 80, 80);
-  const ground = Bodies.rectangle(400, 610, 810, 60, {isStatic: true});
+  const gridSize = 150;
 
-// add all of the bodies to the world
-  World.add(engine.world, [boxA, boxB, ground]);
+  for (const gridY of range(Math.floor(height / gridSize))) {
+    for (const gridX of range(Math.floor(width / gridSize))) {
+      World.add(engine.world, Bodies.polygon(
+        gridX * gridSize + gridSize / 4 + (gridY % 2 === 0 ? gridSize / 2 : 0),
+        gridY * gridSize + gridSize / 2,
+        3,
+        gridSize / 4,
+        {
+          isStatic: true,
+          angle: Math.random() * Math.PI * 2,
+          label: `wall_${generateRandomKey()}`
+        }))
+    }
+  }
 
-// run the engine
+  setInterval(() => {
+    const ball = Bodies.circle(Math.random() * width, 0, 10, {
+      label: "ball",
+      restitution: 1
+    });
+
+    World.add(engine.world, ball);
+  }, 1000);
+
   Engine.run(engine);
-
-// run the renderer
   Render.run(render);
+
+  Events.on(engine, "collisionStart", event => {
+    const bodyA = event.pairs?.[0].bodyA;
+    const bodyB = event.pairs?.[0].bodyB;
+
+    const ball = bodyA.label === "ball" ? bodyA : bodyB.label === "ball" ? bodyB : undefined;
+    const wall = bodyA.label.startsWith("wall") ? bodyA : bodyB.label.startsWith("wall") ? bodyB : undefined;
+
+    if (ball && wall) {
+      const key = wall.label.split("wall_")[1];
+
+      play(key);
+    }
+  });
 };

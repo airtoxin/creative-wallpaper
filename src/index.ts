@@ -1,5 +1,5 @@
-import { createSynth } from "./synthCreator";
 import { createWorld } from "./worldCreator";
 
-createSynth();
-createWorld();
+window.addEventListener("load", () => {
+  createWorld();
+});
