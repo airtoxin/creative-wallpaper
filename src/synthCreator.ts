@@ -9,8 +9,8 @@ export const createSynth = () => {
     envelope: {
       attack: 0.001,
       decay: 0.1,
-      sustain: 0.001,
-      release: 0.001
+      sustain: 0.01,
+      release: 0.1
     }
   }).toDestination();
   const chords = [

@@ -1,9 +1,9 @@
-import { Bodies, Engine, Events, Render, World } from "matter-js";
+import { Bodies, Engine, Events, IBodyDefinition, Render, World } from "matter-js";
 import { range } from "./util";
 import { createSynth } from "./synthCreator";
 
 export const createWorld = () => {
-  const { play, generateRandomKey, generateRandomDuration } = createSynth();
+  const {play, generateRandomKey, generateRandomDuration} = createSynth();
   const engine = Engine.create({});
   const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 
@@ -25,22 +25,18 @@ export const createWorld = () => {
     for (const gridX of range(
       Math.floor(width / gridSize) + (gridY % 2 === 0 ? 0 : 1)
     )) {
-      World.add(
-        engine.world,
-        Bodies.polygon(
-          gridX * gridSize +
-            gridSize / 4 +
-            (gridY % 2 === 0 ? gridSize / 2 : 0),
-          gridY * gridSize + gridSize / 2,
-          3,
-          gridSize / 4,
-          {
-            isStatic: true,
-            angle: Math.random() * Math.PI * 2,
-            label: `wall_${generateRandomKey()}`
-          }
-        )
-      );
+      const x = gridX * gridSize + gridSize / 4 + (gridY % 2 === 0 ? gridSize / 2 : 0);
+      const y = gridY * gridSize + gridSize / 2;
+      const wallOption: IBodyDefinition = {
+        isStatic: true,
+        angle: - Math.PI / 3 + Math.random() * Math.PI / 3,
+        label: `wall_${generateRandomKey()}`
+      };
+      const wall = (gridX + gridY) % 4 === 0 ?
+        Bodies.circle(x, y, gridSize / 5, wallOption) :
+        Bodies.polygon(x, y, 3, gridSize / 4, wallOption);
+
+      World.add(engine.world, wall);
     }
   }
 
@@ -63,13 +59,13 @@ export const createWorld = () => {
     const ball = bodyA.label.startsWith("ball")
       ? bodyA
       : bodyB.label.startsWith("ball")
-      ? bodyB
-      : undefined;
+        ? bodyB
+        : undefined;
     const wall = bodyA.label.startsWith("wall")
       ? bodyA
       : bodyB.label.startsWith("wall")
-      ? bodyB
-      : undefined;
+        ? bodyB
+        : undefined;
 
     if (ball && wall) {
       const key = wall.label.split("wall_")[1];
