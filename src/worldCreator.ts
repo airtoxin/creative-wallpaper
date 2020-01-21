@@ -54,7 +54,9 @@ export const createWorld = () => {
   const addBall = () => {
     const ball = Bodies.circle(width / 4 + (Math.random() * width) / 2, 0, 10, {
       label: `ball_${generateRandomDuration()}`,
-      restitution: 1
+      restitution: 0.9,
+      friction: 0,
+      density: 1000
     });
 
     balls[ball.id] = ball;
