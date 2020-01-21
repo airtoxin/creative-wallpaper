@@ -2,7 +2,17 @@ import { PolySynth, TransportTime, Transport, Synth, Loop } from "tone";
 import { choose } from "./util";
 
 export const createSynth = () => {
-  const synth = new PolySynth(Synth).toDestination();
+  const synth = new PolySynth(Synth, {
+    oscillator: {
+      type: "triangle8"
+    },
+    envelope: {
+      attack: 0.001,
+      decay: 0.1,
+      sustain: 0.001,
+      release: 0.001
+    }
+  }).toDestination();
   const chords = [
     ["C", "E", "G"],
     ["A", "C", "E"],
