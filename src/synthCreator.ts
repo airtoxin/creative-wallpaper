@@ -1,21 +1,10 @@
-import {
-  PolySynth,
-  TransportTime,
-  Transport,
-  Synth,
-  Loop,
-  MembraneSynth,
-  PluckSynth,
-  Time,
-  Limiter,
-  Compressor
-} from "tone";
+import { Limiter, Loop, MembraneSynth, PluckSynth, PolySynth, Synth, Time, Transport, TransportTime } from "tone";
 import { choose } from "./util";
 
 export const createSynth = () => {
   const limiter = new Limiter(-1).toDestination();
-  const compressor = new Compressor(-6, 10).connect(limiter);
   const synth = new PolySynth(Synth, {
+    volume: -8,
     oscillator: {
       type: "triangle8"
     },
@@ -25,7 +14,7 @@ export const createSynth = () => {
       sustain: 0.01,
       release: 0.1
     }
-  }).connect(compressor);
+  }).connect(limiter);
   const chords = [
     ["C", "E", "G"],
     ["A", "C", "E"],
@@ -39,14 +28,14 @@ export const createSynth = () => {
     chordIndex %= chords.length;
   }, "1m").start();
 
-  const kick = new MembraneSynth().connect(compressor);
+  const kick = new MembraneSynth({volume: -4}).connect(limiter);
   new Loop(() => {
     Transport.schedule(time => {
       kick.triggerAttackRelease("C0", 0.005, time);
     }, TransportTime("@4n"));
   }, "4n").start();
 
-  const hihat = new PluckSynth().connect(compressor);
+  const hihat = new PluckSynth({volume: -10}).connect(limiter);
   new Loop(() => {
     Transport.schedule(time => {
       hihat.triggerAttackRelease("C5", 0.005, time + Time("8n").toSeconds());
